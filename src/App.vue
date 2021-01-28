@@ -35,7 +35,11 @@ export default {
         validLink(rss_url) {
             this.loading = true;
             axios
-                .get(rss_url)
+                .get(rss_url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
                 .then((resp) => {
                     const jobsData = JSON.parse(toJson.xml2json(resp.data, { compact: true }));
                     if (jobsData.rss.channel !== undefined) {
@@ -58,7 +62,11 @@ export default {
         },
         autoFetch() {
             axios
-                .get(this.static_rss)
+                .get(this.static_rss, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
                 .then((resp) => {
                     const jobsData = JSON.parse(toJson.xml2json(resp.data, { compact: true }));
                     const { item, description } = jobsData.rss.channel;
@@ -93,7 +101,7 @@ export default {
 }
 
 .center-content {
-    top: 43%;
+    top: 45%;
     transform: translate(0, -50%);
 }
 </style>
