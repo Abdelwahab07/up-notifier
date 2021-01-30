@@ -1,48 +1,52 @@
 <template>
     <div class="job--item">
-        <a :href="link" target="_blank">
+        <a :href="job.link" target="_blank">
             <h4
                 class="text-body-2 text--black font-weight-bold mb-3 job-title"
-                v-html="job.title._cdata.slice(0, -8)"
+                v-html="job.title"
             ></h4>
             <span class="d-block job-info mb-2">
-                <span v-if="jobType.hasType">
-                    <span class="font-weight-bold">{{ jobType.type }}</span>
-                    <span>: {{ jobType.value }} - </span>
+                <span v-if="job.jobType.hasType">
+                    <span class="font-weight-bold">{{ job.jobType.type }}</span>
+                    <span>: {{ job.jobType.value }} - </span>
                 </span>
                 <span>
                     <span class="font-weight-bold">Posetd</span>
-                    <span>: {{ postedDate.relative }}</span>
+                    <span>: {{ job.postedDate.relative }}</span>
                 </span>
                 <span>
                     <span class="font-weight-bold">
-                        - {{ this.category }}
-                        <template v-if="this.country !== null">-</template>
+                        - {{ job.category }}
+                        <template v-if="job.country !== null">-</template>
                     </span>
                 </span>
-                <span v-if="this.country !== null">
+                <span v-if="job.country !== null">
                     <v-icon small class="d-inline">{{ icons.location }}</v-icon>
-                    <span class="font-weight-bold"> {{ this.country }} </span>
+                    <span class="font-weight-bold"> {{ job.country }} </span>
                 </span>
             </span>
             <span class="job-description d-block mb-2">
                 <span
-                    v-html="description.showMore ? description.original : description.truncate"
+                    v-html="
+                        job.description.showMore
+                            ? job.description.original
+                            : job.description.truncate
+                    "
                 ></span>
                 <a
                     href="javascript:void(0)"
                     @click="toggleDescription"
                     class="toggel-text"
-                    v-if="description.needTruncated"
+                    v-if="job.description.needTruncated"
                 >
-                    {{ !description.showMore ? 'more' : 'less' }}
+                    {{ !job.description.showMore ? 'more' : 'less' }}
                 </a>
             </span>
-            <span class="d-block job-info" v-if="skills.hasSkills">
+            <span class="d-block job-info" v-if="job.skills.hasSkills">
                 <span class="font-weight-bold"> Skills: </span>
-                <span v-for="(skill, index) in skills.value" :key="index">
+                <span v-for="(skill, index) in job.skills.value" :key="index">
                     {{ skill }}
-                    <template v-if="index != skills.value.length - 1">-</template>
+                    <template v-if="index != job.skills.value.length - 1">-</template>
                 </span>
             </span>
         </a>
@@ -62,111 +66,19 @@ export default {
         icons: {
             location: mdiMapMarker,
         },
-        jobData: null,
-        description: {
-            original: '',
-            truncate: '',
-            needTruncated: false,
-            showMore: false,
-        },
-        jobType: {
-            hasType: true,
-            type: '',
-            value: '',
-        },
-        postedDate: {
-            absolute: null,
-            relative: null,
-        },
-        category: null,
-        skills: {
-            hasSkills: true,
-            value: [],
-        },
-        country: null,
-        link: null,
     }),
     created: function() {
-        this.cleanData();
-        this.getDescription();
-        this.getSalary();
-        this.getPostedDate();
         this.autoUpdateDate();
-        this.getCategory();
-        this.getSkills();
-        this.getCountry();
-        this.getLink();
     },
     methods: {
-        cleanData() {
-            this.jobData = this.job.description._cdata
-                .replace(/(<|&lt;)br\s*\/*(>|&gt;)/g, '')
-                .replace(/<\/b>/g, '')
-                .replace(/\r?\n|\r/g, '')
-                .split('<b>');
-        },
-        getDescription() {
-            this.description.original = this.jobData[0];
-            if (this.description.original.length > 225) {
-                this.description.truncate = `${this.description.original.slice(0, 225)}... `;
-                this.description.needTruncated = true;
-            } else {
-                this.description.needTruncated = false;
-                this.description.truncate = this.description.original;
-            }
-        },
-        toggleDescription() {
-            this.description.showMore = !this.description.showMore;
-        },
-        getSalary() {
-            if (this.jobData[1].includes('Budget')) {
-                this.jobType.type = 'Fixed-price';
-                this.jobType.value = this.jobData[1].split(': ')[1];
-            } else if (this.jobData[1].includes('Hourly Range')) {
-                this.jobType.type = 'Hourly';
-                this.jobType.value = this.jobData[1].split(': ')[1];
-            } else {
-                this.jobType.hasType = false;
-            }
-        },
-        getPostedDate() {
-            this.postedDate.absolute = new Date(
-                this.jobType.hasType
-                    ? this.jobData[2].split(': ')[1]
-                    : this.jobData[1].split(': ')[1]
-            );
-        },
         autoUpdateDate() {
-            this.postedDate.relative = format(this.postedDate.absolute);
+            this.job.postedDate.relative = format(this.job.postedDate.absolute);
             setInterval(() => {
-                this.postedDate.relative = format(this.postedDate.absolute);
+                this.job.postedDate.relative = format(this.job.postedDate.absolute);
             }, 60000);
         },
-        getCategory() {
-            this.category = this.jobType.hasType
-                ? this.jobData[3].split(': ')[1]
-                : this.jobData[2].split(': ')[1];
-        },
-        getSkills() {
-            const skillsString = this.jobType.hasType
-                ? this.jobData[4].split('<a href')[0]
-                : this.jobData[3].split('<a href')[0];
-            if (skillsString.includes('Skills')) {
-                this.skills.value = skillsString.split(':')[1].split(',');
-            } else {
-                this.skills.hasSkills = false;
-            }
-        },
-        getCountry() {
-            if (this.jobData[this.jobData.length - 1].includes('Country')) {
-                this.country = this.jobData[this.jobData.length - 1]
-                    .split(': ')[1]
-                    .split('<a href')[0];
-            }
-        },
-        getLink() {
-            const jobId = this.job.link._text.split('%7E')[1].split('?')[0];
-            this.link = `https://www.upwork.com/jobs/~${jobId}`;
+        toggleDescription() {
+            this.job.description.showMore = !this.job.description.showMore;
         },
     },
 };

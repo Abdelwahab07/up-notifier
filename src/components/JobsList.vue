@@ -6,7 +6,9 @@
                     <h2 class="font-weight-bold text-h6 list-header">
                         {{ jobs.description._cdata }}
                     </h2>
-                    <job-item v-for="job in jobs.item" :key="job.link._text" :job="job"></job-item>
+                    <template v-if="jobsList.length">
+                        <job-item v-for="job in jobsList" :key="job.link" :job="job"></job-item>
+                    </template>
                 </div>
             </v-col>
         </v-row>
@@ -15,13 +17,39 @@
 
 <script>
 import JobItem from './JobItem.vue';
+import { initJobs, getNewJobs } from '../services/mutate-data';
 
 export default {
-    components: { JobItem },
     name: 'JobsList',
+    components: {
+        JobItem,
+    },
     props: {
-        jobs: {
-            type: Object,
+        jobs: Object,
+    },
+    data: () => ({
+        jobsList: [],
+    }),
+    created: function() {
+        this.jobsList = initJobs(this.jobs.item);
+    },
+    watch: {
+        jobs: function(newAllJobs, oldJobs) {
+            const newJobs = getNewJobs(newAllJobs.item, oldJobs.item);
+
+            if (newJobs.length) {
+                const initNewJobs = initJobs(newJobs);
+                this.addNewJobs(initNewJobs);
+                this.removeOldJobs(initNewJobs.length);
+            }
+        },
+    },
+    methods: {
+        addNewJobs(newJobs) {
+            this.jobsList.unshift(...newJobs);
+        },
+        removeOldJobs(length) {
+            this.jobsList = this.jobsList.slice(0, -length);
         },
     },
 };
