@@ -22,7 +22,11 @@
 <script>
 import JobItem from './JobItem.vue';
 import { initJobs, getNewJobs } from '../services/mutate-data';
-import { NotificationPermission } from '../services/notifications';
+import {
+    askPermission,
+    getNotificationPermissionState,
+    pushNotification,
+} from '../services/notifications';
 
 export default {
     name: 'JobsList',
@@ -37,19 +41,27 @@ export default {
     }),
     created: function() {
         this.jobsList = initJobs(this.jobs.item);
-        console.log(1);
-        this.showNotification();
+        askPermission();
     },
     watch: {
-        jobs: function(newAllJobs, oldJobs) {
+        jobs: async function(newAllJobs, oldJobs) {
             const newJobs = getNewJobs(newAllJobs.item, oldJobs.item);
 
             if (newJobs.length) {
+                /**
+                 * Update jobs list array with limit 50 item
+                 */
                 const initNewJobs = initJobs(newJobs);
                 this.addNewJobs(initNewJobs);
                 this.removeOldJobs(initNewJobs.length);
 
-                console.log(NotificationPermission());
+                /**
+                 * Send notification with number of new jobs
+                 */
+                const PermissionState = await getNotificationPermissionState();
+                if (PermissionState === 'granted') {
+                    pushNotification(newJobs.length);
+                }
             }
         },
     },
@@ -59,21 +71,6 @@ export default {
         },
         removeOldJobs(length) {
             this.jobsList = this.jobsList.slice(0, -length);
-        },
-        showNotification() {
-            Notification.requestPermission(function(result) {
-                console.log(result);
-                if (result === 'granted') {
-                    navigator.serviceWorker.ready.then(function(registration) {
-                        registration.showNotification('Vibration Sample', {
-                            body: 'Buzz! Buzz!',
-                            icon: '../images/touch/chrome-touch-icon-192x192.png',
-                            vibrate: [200, 100, 200, 100, 200, 100, 200],
-                            tag: 'vibration-sample',
-                        });
-                    });
-                }
-            });
         },
     },
 };

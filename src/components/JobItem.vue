@@ -88,7 +88,9 @@ export default {
     padding: 20px 30px;
     border-top: 1px solid #e0e0e0;
     line-height: 1.35;
+    overflow-wrap: break-word;
 }
+
 @media (max-width: 600px) {
     .job--item {
         padding: 20px;
