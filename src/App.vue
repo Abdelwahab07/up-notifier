@@ -72,7 +72,7 @@ export default {
             this.autoFetch();
             setInterval(() => {
                 this.autoFetch();
-            }, 30000);
+            }, 40000);
         },
     },
 };

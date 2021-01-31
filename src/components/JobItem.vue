@@ -25,7 +25,7 @@
                     <span class="font-weight-bold"> {{ job.country }} </span>
                 </span>
             </span>
-            <span class="job-description d-block mb-2">
+            <span class="job-description d-block">
                 <span
                     v-html="
                         job.description.showMore
@@ -42,7 +42,7 @@
                     {{ !job.description.showMore ? 'more' : 'less' }}
                 </a>
             </span>
-            <span class="d-block job-info" v-if="job.skills.hasSkills">
+            <span class="d-block job-info mt-2" v-if="job.skills.hasSkills">
                 <span class="font-weight-bold"> Skills: </span>
                 <span v-for="(skill, index) in job.skills.value" :key="index">
                     {{ skill }}
@@ -72,7 +72,6 @@ export default {
     },
     methods: {
         autoUpdateDate() {
-            this.job.postedDate.relative = format(this.job.postedDate.absolute);
             setInterval(() => {
                 this.job.postedDate.relative = format(this.job.postedDate.absolute);
             }, 60000);

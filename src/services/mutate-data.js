@@ -1,3 +1,5 @@
+import { format } from 'timeago.js';
+
 export const initJobs = (jobs) => {
     const jobsList = [];
 
@@ -83,6 +85,7 @@ const getPostedDate = (data, jobHasType) => {
     };
 
     postedDate.absolute = new Date(jobHasType ? data[2].split(': ')[1] : data[1].split(': ')[1]);
+    postedDate.relative = format(postedDate.absolute);
 
     return postedDate;
 };
