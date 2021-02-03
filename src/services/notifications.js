@@ -28,8 +28,8 @@ export const pushNotification = (newJobsNumber) => {
     navigator.serviceWorker.ready.then((registration) => {
         registration.showNotification(`There is ${newJobsNumber} new jobs!`, {
             body: "Don't miss your chance",
-            icon: '../../public/img/notfication-icon.jpg',
-            badge: '../../public/img/badge.png',
+            icon: require('../assets/notfication-icon.jpg'),
+            badge: require('../../public/img/badge.png'),
             actions: [
                 {
                     action: 'check-out',
@@ -37,35 +37,5 @@ export const pushNotification = (newJobsNumber) => {
                 },
             ],
         });
-
-        self.addEventListener('notificationclick', (event) => openAppPage(event));
     });
-};
-
-const openAppPage = (event) => {
-    const urlToOpen = new URL(`/`, self.location.origin).href;
-
-    const promiseChain = self.clients
-        .matchAll({
-            type: 'window',
-            includeUncontrolled: true,
-        })
-        .then((windowClients) => {
-            let matchingClient = null;
-
-            for (let i = 0; i < windowClients.length; i++) {
-                const windowClient = windowClients[i];
-                if (windowClient.url === urlToOpen) {
-                    matchingClient = windowClient;
-                    break;
-                }
-            }
-            if (matchingClient) {
-                return matchingClient.focus();
-            } else {
-                return self.clients.openWindow(urlToOpen);
-            }
-        });
-
-    event.waitUntil(promiseChain);
 };

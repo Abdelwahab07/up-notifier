@@ -35,14 +35,15 @@ export default {
         validLink(rss_url) {
             this.loading = true;
             axios
-                .get(`https://cors-anywhere.herokuapp.com/${rss_url}`)
+                .get(`https://cors-allow.herokuapp.com/${rss_url}`)
                 .then((resp) => {
+                    console.log(resp);
                     const jobsData = JSON.parse(toJson.xml2json(resp.data, { compact: true }));
                     if (jobsData.rss.channel !== undefined) {
                         this.isEmpty = false;
-                        /* 
-                            Waiting for header transition to complete
-                        */
+                        /**
+                         * Waiting for header transition to complete
+                         */
                         setTimeout(() => {
                             this.static_rss = rss_url;
                         }, 450);
@@ -58,7 +59,7 @@ export default {
         },
         autoFetch() {
             axios
-                .get(`https://cors-anywhere.herokuapp.com/${this.static_rss}`)
+                .get(`https://cors-allow.herokuapp.com/${this.static_rss}`)
                 .then((resp) => {
                     const jobsData = JSON.parse(toJson.xml2json(resp.data, { compact: true }));
                     const { item, description } = jobsData.rss.channel;
