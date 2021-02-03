@@ -1,19 +1,3 @@
-self.addEventListener('install', () => self.skipWaiting());
-
-self.addEventListener('activate', () => {
-    self.clients.matchAll({ type: 'window' }).then((windowClients) => {
-        for (const windowClient of windowClients) {
-            windowClient.navigate(windowClient.url);
-        }
-    });
-});
-
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-});
-
 self.addEventListener('notificationclick', function(event) {
     if (!event.action) {
         return;
