@@ -5,7 +5,12 @@
                 <app-header />
                 <feed-input :loading="loading" @send-link="validLink" :errorMsg="errorMsg" />
             </div>
-            <jobs-list v-if="Object.keys(jobs).length" :jobs="jobs" />
+            <jobs-list
+                v-if="Object.keys(jobs).length"
+                :jobs="jobs"
+                :isNewList="newList"
+                @AddedNewList="setNewListFalse"
+            />
         </v-main>
     </v-app>
 </template>
@@ -28,6 +33,7 @@ export default {
         loading: false,
         isEmpty: true,
         static_rss: null,
+        newList: false,
         errorMsg: null,
         jobs: {},
     }),
@@ -67,9 +73,15 @@ export default {
                 })
                 .catch((error) => (this.errorMsg = `${error}`));
         },
+        setNewListFalse() {
+            this.newList = false;
+        },
     },
     watch: {
-        static_rss: function() {
+        static_rss: function(newValue, oldValue) {
+            if (oldValue !== null) {
+                this.newList = true;
+            }
             this.autoFetch();
             setInterval(() => {
                 this.autoFetch();

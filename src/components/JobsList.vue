@@ -35,6 +35,7 @@ export default {
     },
     props: {
         jobs: Object,
+        isNewList: Boolean,
     },
     data: () => ({
         jobsList: [],
@@ -45,15 +46,14 @@ export default {
     },
     watch: {
         jobs: async function(newAllJobs, oldJobs) {
-            const newJobs = getNewJobs(newAllJobs.item, oldJobs.item);
+            const newJobs = this.isNewList
+                ? newAllJobs.item
+                : getNewJobs(newAllJobs.item, oldJobs.item);
 
             if (newJobs.length) {
-                /**
-                 * Update jobs list array with limit 50 item
-                 */
                 const initNewJobs = initJobs(newJobs);
-                this.addNewJobs(initNewJobs);
                 this.removeOldJobs(initNewJobs.length);
+                this.addNewJobs(initNewJobs);
 
                 /**
                  * Send notification with number of new jobs
@@ -63,6 +63,8 @@ export default {
                     pushNotification(newJobs.length);
                 }
             }
+
+            this.$emit('AddedNewList');
         },
     },
     methods: {
@@ -70,7 +72,9 @@ export default {
             this.jobsList.unshift(...newJobs);
         },
         removeOldJobs(length) {
-            this.jobsList = this.jobsList.slice(0, -length);
+            this.isNewList
+                ? (this.jobsList = [])
+                : (this.jobsList = this.jobsList.slice(0, -length));
         },
     },
 };
