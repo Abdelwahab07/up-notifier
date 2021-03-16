@@ -115,21 +115,19 @@ const getSkills = (data, jobHasType, country) => {
 };
 
 const getCountry = (data) => {
-    if (data[data.length - 1].includes('Country')) {
-        return data[data.length - 1].split(': ')[1].split('<a href')[0];
-    }
-    return null;
+    return data[data.length - 1].includes('Country')
+        ? data[data.length - 1].split(': ')[1].split('<a href')[0]
+        : null;
 };
 
 const getLink = (data) => {
     const jobId = data.split('%7E')[1].split('?')[0];
-
     return `https://www.upwork.com/jobs/~${jobId}`;
 };
 
 export const getNewJobs = (newAllJobs, oldJobs) => {
     const newJobs = newAllJobs.filter(
-        (newJob) => !oldJobs.map((oldJob) => oldJob.title._cdata).includes(newJob.title._cdata)
+        (newJob) => !oldJobs.map((oldJob) => oldJob.link._text).includes(newJob.link._text)
     );
 
     return newJobs;

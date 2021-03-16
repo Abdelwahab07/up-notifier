@@ -8,8 +8,8 @@
                     </h2>
                     <template v-if="jobsList.length">
                         <job-item
-                            v-for="(job, index) in jobsList"
-                            :key="index"
+                            v-for="job in jobsList.slice(0, 50)"
+                            :key="job.link"
                             :job="job"
                         ></job-item>
                     </template>
@@ -72,9 +72,15 @@ export default {
             this.jobsList.unshift(...newJobs);
         },
         removeOldJobs(length) {
-            this.isNewList
-                ? (this.jobsList = [])
-                : (this.jobsList = this.jobsList.slice(0, -length));
+            /**
+             * this fixing the issue when the job deleted suddenly from the RSS feed then show again,
+             *  which will lead to bringing up back deleted job out of order.
+             */
+            if (this.jobsList.length >= 100) {
+                this.isNewList
+                    ? (this.jobsList = [])
+                    : (this.jobsList = this.jobsList.slice(0, -length));
+            }
         },
     },
 };
