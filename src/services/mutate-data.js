@@ -125,10 +125,6 @@ const getLink = (data) => {
     return `https://www.upwork.com/jobs/~${jobId}`;
 };
 
-export const getNewJobs = (newAllJobs, oldJobs) => {
-    const newJobs = newAllJobs.filter(
-        (newJob) => !oldJobs.map((oldJob) => oldJob.link._text).includes(newJob.link._text)
-    );
-
-    return newJobs;
+export const getNewJobs = (allJobs, oldJobs) => {
+    return allJobs.filter((newJob) => !oldJobs.map((oldJob) => oldJob.link).includes(newJob.link));
 };

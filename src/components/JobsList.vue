@@ -45,23 +45,16 @@ export default {
         askPermission();
     },
     watch: {
-        jobs: async function(newAllJobs, oldJobs) {
-            const newJobs = this.isNewList
-                ? newAllJobs.item
-                : getNewJobs(newAllJobs.item, oldJobs.item);
+        jobs: async function(newAllJobs) {
+            const initNewJobs = initJobs(newAllJobs.item);
+            const newJobs = this.isNewList ? initNewJobs : getNewJobs(initNewJobs, this.jobsList);
 
             if (newJobs.length) {
-                const initNewJobs = initJobs(newJobs);
-                this.removeOldJobs(initNewJobs.length);
-                this.addNewJobs(initNewJobs);
+                this.removeOldJobs(newJobs.length);
+                this.addNewJobs(newJobs);
 
-                /**
-                 * Send notification with number of new jobs
-                 */
-                const PermissionState = await getNotificationPermissionState();
-                if (PermissionState === 'granted') {
-                    pushNotification(newJobs.length);
-                }
+                const permissionState = await getNotificationPermissionState();
+                permissionState === 'granted' ? pushNotification(newJobs.length) : null;
             }
 
             this.$emit('AddedNewList');
@@ -74,7 +67,7 @@ export default {
         removeOldJobs(length) {
             /**
              * this fixing the issue when the job deleted suddenly from the RSS feed then show again,
-             *  which will lead to bringing up back deleted job out of order.
+             * which will lead to bringing up back deleted job out of order.
              */
             if (this.jobsList.length >= 100) {
                 this.isNewList
